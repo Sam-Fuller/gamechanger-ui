@@ -5,7 +5,7 @@ import React, { useCallback, useState } from "react";
 
 import { PlayerPanel } from "./playerPanel";
 
-const socket = new WebSocket("ws://localhost:80");
+const socket = new WebSocket("ws://gamechanger.jonathanjackson.me.uk:80");
 
 export const HostView: React.FunctionComponent = () => {
     const [players, setPlayers] = useState<Player[]>([]);
