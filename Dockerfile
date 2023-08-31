@@ -20,4 +20,4 @@ RUN npm ci
 COPY --from=builder /usr/src/app/build ./build
 
 EXPOSE 3000
-CMD [ "react-scripts", "start" ]
+CMD ["npm", "start"]
