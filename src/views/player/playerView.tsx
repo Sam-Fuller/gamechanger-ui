@@ -1,7 +1,7 @@
 import { COLORS, MESSAGE_TYPES, Message, Player } from "src/types";
 import React, { useCallback, useState } from "react";
 
-const socket = new WebSocket("ws://gamechanger.jonathanjackson.me.uk:80");
+const socket = new WebSocket("ws://gamechanger-ws.jonathanjackson.me.uk:80");
 
 export const PlayerView: React.FunctionComponent = () => {
     const [player, setPlayer] = useState<Player | undefined>(undefined);
