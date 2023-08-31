@@ -4,11 +4,11 @@ import {ReactComponent as AddIcon} from './add.svg';
 import React from "react";
 import {ReactComponent as SubIcon} from './sub.svg';
 
-export const PlayerPanel: React.FunctionComponent<{player: Player, socket: WebSocket}> = ({player, socket}) => {
+export const PlayerPanel: React.FunctionComponent<{player: Player, socket: WebSocket, winner?: Player}> = ({player, socket, winner}) => {
     const addPoints = (amount: number) => {
         socket.send(JSON.stringify({
             type: "SET_POINTS",
-            players: [{...player, score: player.score + amount}]
+            players: [{...player, score: Math.max(0, player.score + amount)}]
         }));
     }
 
@@ -23,7 +23,7 @@ export const PlayerPanel: React.FunctionComponent<{player: Player, socket: WebSo
         alignItems: "center",
     }}>
         <div style={{
-            background: "black",
+            background: winner && winner.id !== player.id? "gray": "black",
             color: "white",
 
             padding: "5px",
@@ -34,7 +34,11 @@ export const PlayerPanel: React.FunctionComponent<{player: Player, socket: WebSo
             fontSize: '2em',
             textAlign: 'center',
         }}>
-            {player?.score.toString().padStart(4, '0')}
+            {
+                player?.timeBuzzed ? 
+                    "BUZZ" :
+                    player?.score.toString().padStart(4, '0')
+            }
         </div>
 
         <div style={{

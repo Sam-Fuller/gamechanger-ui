@@ -1,10 +1,11 @@
 import { COLORS, MESSAGE_TYPES, Message, Player } from "src/types";
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 
 const socket = new WebSocket("ws://localhost:80");
 
 export const PlayerView: React.FunctionComponent = () => {
     const [player, setPlayer] = useState<Player | undefined>(undefined);
+    const [winningBuzz, setWinningBuzz] = useState<boolean>(true);
 
     socket.onmessage = (event: MessageEvent<any>) => {
         const data: Message = JSON.parse(event.data);
@@ -15,7 +16,16 @@ export const PlayerView: React.FunctionComponent = () => {
                 const players = data.players;
                 const id = data.id;
 
-                setPlayer(players.find(player => player.id === id))
+                const thisPlayer = players.find(player => player.id === id);
+                setPlayer(thisPlayer)
+
+                if (thisPlayer?.timeBuzzed) {
+                    const fasterPlayers = players.find(player => player.timeBuzzed && new Date(player.timeBuzzed) < new Date(thisPlayer.timeBuzzed || 0));
+                    console.log(fasterPlayers);
+                    setWinningBuzz(!fasterPlayers);
+                } else {
+                    setWinningBuzz(true);
+                }
                 break;
         }
     }
@@ -30,6 +40,13 @@ export const PlayerView: React.FunctionComponent = () => {
         }
     }
 
+    const buzz = useCallback(() => {
+        socket.send(JSON.stringify({
+            type: "SET_POINTS",
+            players: [{...player, timeBuzzed: Date.now()}]
+        }))
+    }, [player])
+
     return <div style={{
             // @ts-ignore
             backgroundColor: COLORS[player?.color.toString() || "RED"],
@@ -38,10 +55,10 @@ export const PlayerView: React.FunctionComponent = () => {
             display: "flex",
             justifyContent: "center",
             alignItems: "center",
-        }}>
+        }} onClick={buzz}>
 
         <div style={{
-            background: "black",
+            background: winningBuzz? "black": "gray",
             color: "white",
 
             width: '75vw',
@@ -52,7 +69,11 @@ export const PlayerView: React.FunctionComponent = () => {
             fontSize: '25vw',
             textAlign: 'center',
         }}>
-            {player?.score.toString().padStart(4, '0')}
+            {
+                player?.timeBuzzed ? 
+                    "BUZZ!" :
+                    player?.score.toString().padStart(4, '0')
+            }
         </div>
 
     </div>
